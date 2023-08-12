@@ -57,22 +57,86 @@ function VerificaClasse(array){
 
     //descobre classe
     if(Octeto >= 1 && Octeto <= 126){ //classe A
-        return 9
+        return 8
     }
     else if(Octeto == 127){
         console.log("Ip reservado. Desconsidere o resultado.")
     }
     else if(Octeto >= 128 && Octeto <= 192){ //classe B, 192 se comporta como B
-        return 17
+        return 16
     }
     else if(Octeto >= 193 && Octeto <= 223){ //classe C
-        return 25
+        return 24
+    }
+}
+
+function TemSubRede(Index, Mascara){
+    if(Mascara[Index] == 1){
+        return true
+    }
+    else{
+        return false
+    }   
+}
+
+function QuantidadeSubredes(Mascara, Index){
+    const host = Mascara.slice(Index)
+    let BitsHabilitados = 0
+
+    for(let i=0; i<host.length; i++){
+        if(host[i] == 1){
+            BitsHabilitados++
+        }
+    }
+
+    let QuantidadeSubredes = Math.pow(2, BitsHabilitados)
+
+    return QuantidadeSubredes
+}
+
+function DescobreIntervaloDeSubredes(NumRedes){
+    let espaco = (Math.pow(256, ((32 - index) / 8))) / NumRedes
+    return espaco
+}
+
+function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco){
+    
+}
+
+function DescobreRedeBroadcast(Ip, ArrayRede, ArrayBroadcast, Index, Mascara){
+    const TravaDecimal = (Index * 3) / 8
+
+    if(TemSubRede(Index, Mascara) == false){
+        for(let i=0; i<TravaDecimal; i++){
+            ArrayRede.push(Ip[i])
+            ArrayBroadcast.push(Ip[i])
+        }
+
+        let Contador = 0
+        for(let i=0; i<(12 - TravaDecimal); i++){
+            ArrayRede.push(0)
+
+            if(Contador == 0 || Contador == 3 || Contador == 6){
+                ArrayBroadcast.push(2)
+            }
+            else{
+                ArrayBroadcast.push(5)
+            }
+            Contador++
+        }
+    }
+    else{
+        let Subredes = QuantidadeSubredes(Mascara, Index)
+        let Intervalo = DescobreIntervaloDeSubredes(Subredes, Index)
+        DescobreIntervaloIp(ArrayRede, ArrayBroadcast, Ip, Intervalo)
     }
 }
 
 //recebe IPV4 e Macara de rede
 let IpNum = prompt("Digite o endereco IPV4")
 let MascaraNum = prompt("Digite a mascara de rede")
+let Rede = []
+let Broadcast = []
 
 //transforma Inteiro em Array
 let IpArray = Array.from(String(IpNum), num => Number(num))
@@ -81,5 +145,11 @@ let MascaraArray = Array.from(String(MascaraNum), num => Number(num))
 //Verifica se Ip é válido
 if(IpArray.length != 12){console.log("Ip Invalido, desconsidere resultado.")}
 
+//Recebe marco para verificar subrede
 let Trava = VerificaClasse(IpArray)
+
+//Recebe mascara em binario
 RetornaMascaraBinario(MascaraArray)
+
+//Recebe endereço de rede e broadcast do endereço ip apresentado
+DescobreRedeBroadcast(IpArray, Rede, Broadcast, Trava, MascaraArray)
