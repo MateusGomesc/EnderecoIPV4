@@ -79,7 +79,7 @@ function TemSubRede(Index, Mascara){
     }   
 }
 
-function QuantidadeSubredes(Mascara, Index){
+function QuantidadeBitsHabilitadosDepoisTrava(Mascara, Index){
     const host = Mascara.slice(Index)
     let BitsHabilitados = 0
 
@@ -88,7 +88,12 @@ function QuantidadeSubredes(Mascara, Index){
             BitsHabilitados++
         }
     }
+    
+    return BitsHabilitados
+}
 
+function QuantidadeSubredes(Mascara, Index){
+    let BitsHabilitados = QuantidadeBitsHabilitadosDepoisTrava(Mascara, Index)
     let QuantidadeSubredes = Math.pow(2, BitsHabilitados)
 
     return QuantidadeSubredes
@@ -99,8 +104,76 @@ function DescobreIntervaloDeSubredes(NumRedes){
     return espaco
 }
 
-function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco){
+function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, Mascara, Index){
+    const BitsHabilitados = QuantidadeBitsHabilitadosDepoisTrava(Mascara, Index)
+    const TravaDecimal = (Index * 3) / 8
     
+    for(let i=0; i<NumRedes; i++){
+        if(i==0){
+            if(BitsHabilitados > 8 && BitsHabilitados < 16 && Index == 8 || Index == 16){
+                VetorRede = Ipv4.slice(0, (TravaDecimal+3))
+                VetorBroadcast = Ipv4.slice(0, (TravaDecimal+3))
+            }
+            else if(BitsHabilitados > 16 && BitsHabilitados < 24 && Index == 8){
+                VetorRede = Ipv4.slice(0, (TravaDecimal+6))
+                VetorBroadcast = Ipv4.slice(0, (TravaDecimal+6))
+            }
+            else{
+                VetorRede = Ipv4.slice(0, TravaDecimal)
+                VetorBroadcast = Ipv4.slice(0, TravaDecimal)
+            }
+
+            espaco--
+            let EspacoArray = Array.from(String(espaco), num => Number(num))
+            const Paradaloop = VetorRede.length
+            let contador = 0
+
+            for(let j=0; j<(12 - Paradaloop); j++){
+                VetorRede.push(0)
+                
+                if(EspacoArray.length == 1){
+                    if(j==0 || j==1){
+                        VetorBroadcast.push(0)
+                    }
+                    else{
+                        VetorBroadcast.push(EspacoArray[contador])
+                        contador++
+                    }
+                }
+                else if(EspacoArray.length == 2){
+                    if(j==0){
+                        VetorBroadcast.push(0)
+                    }
+                    else{
+                        VetorBroadcast.push(EspacoArray[contador])
+                        contador++
+                    }
+                }
+                else if(EspacoArray.length == 3){
+                    VetorBroadcast.push(EspacoArray[contador])
+                    contador++
+                }
+            }
+        
+        }
+        else{
+            contador = TravaDecimal
+            let dentro = 0
+
+            while(dentro != (12-TravaDecimal)){
+                if(Ipv4[contador] >= VetorRede[contador] && Ipv4[contador] <= VetorBroadcast[contador]){
+                    dentro++
+                }
+                else{
+                    break
+                }
+            }
+            
+            if(dentro == 12){
+                break
+            }
+        }
+    }
 }
 
 function DescobreRedeBroadcast(Ip, ArrayRede, ArrayBroadcast, Index, Mascara){
@@ -128,7 +201,7 @@ function DescobreRedeBroadcast(Ip, ArrayRede, ArrayBroadcast, Index, Mascara){
     else{
         let Subredes = QuantidadeSubredes(Mascara, Index)
         let Intervalo = DescobreIntervaloDeSubredes(Subredes, Index)
-        DescobreIntervaloIp(ArrayRede, ArrayBroadcast, Ip, Intervalo)
+        DescobreIntervaloIp(ArrayRede, ArrayBroadcast, Ip, Intervalo, Subredes, Mascara, Index)
     }
 }
 
