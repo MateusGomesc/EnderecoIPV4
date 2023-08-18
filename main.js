@@ -123,8 +123,8 @@ function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, 
                 VetorBroadcast = Ipv4.slice(0, TravaDecimal)
             }
 
-            espaco--
-            let EspacoArray = Array.from(String(espaco), num => Number(num))
+            let CopiaEspaco = espaco--
+            let EspacoArray = Array.from(String(CopiaEspaco), num => Number(num))
             const Paradaloop = VetorRede.length
             let contador = 0
 
@@ -171,6 +171,107 @@ function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, 
             
             if(dentro == 12){
                 break
+            }
+            else{
+                let SomaQuartoOctetoRede = parseInt(VetorRede.slice(9).join(""))
+                let SomaQuartoOctetoBroadcast = parseInt(VetorBroadcast.slice(9).join(""))
+                let SomaTerceiroOctetoRede = parseInt(VetorRede.slice(6, 9).join(""))
+                let SomaTerceiroOctetoBroadcast = parseInt(VetorBroadcast.slice(6, 9).join(""))
+                let SomaSegundoOctetoRede = parseInt(VetorRede.slice(3, 6).join(""))
+                let SomaSegundoOctetoBroadcast = parseInt(VetorRede.slice(3, 6).join(""))
+
+                SomaQuartoOctetoRede += espaco
+                SomaQuartoOctetoBroadcast += espaco
+
+                if(SomaQuartoOctetoBroadcast>255 || SomaQuartoOctetoRede>255){
+                    SomaTerceiroOctetoRede++
+                    SomaTerceiroOctetoBroadcast++
+
+                    SomaQuartoOctetoRede = 255 - SomaQuartoOctetoRede
+                    SomaQuartoOctetoBroadcast = 255 - SomaQuartoOctetoBroadcast
+
+                    //Transforma todas as somas em arrays e verifica o tamanho, se preciso completa com zero à00 esquerda
+                    SomaQuartoOctetoBroadcast = Array.from(String(SomaQuartoOctetoBroadcast), num => Number(num))
+                    if(SomaQuartoOctetoBroadcast.length == 2){
+                        SomaQuartoOctetoBroadcast.unshift(0)
+                    }
+
+                    SomaQuartoOctetoRede = Array.from(String(SomaQuartoOctetoRede), num => Number(num))
+                    if(SomaQuartoOctetoRede.length == 2){
+                        SomaQuartoOctetoRede.unshift(0)
+                    }
+
+                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
+                    if(SomaTerceiroOctetoRede.length == 2){
+                        SomaTerceiroOctetoRede.unshift(0)
+                    }
+
+                    SomaTerceiroOctetoBroadcast = Array.from(String(SomaTerceiroOctetoBroadcast), num => Number(num))
+                    if(SomaTerceiroOctetoBroadcast.length == 2){
+                        SomaTerceiroOctetoBroadcast.unshift(0)
+                    }
+
+                    let ContadorVetor = 6
+                    let ContadorSoma = 0
+                    for(let j=0; j<6; j++){
+                        if(j==9){
+                            ContadorSoma = 0
+                        }
+
+                        if(j<9){
+                            VetorRede[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]
+                            VetorBroadcast[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]
+                        }
+                        else if(j>=9){
+                            VetorRede[ContadorVetor] = SomaQuartoOctetoRede[ContadorSoma]
+                            VetorBroadcast[ContadorVetor] = SomaQuartoOctetoRede[ContadorSoma]                            
+                        }
+                        ContadorVetor++
+                        ContadorSoma++
+                    }
+                }
+                else if(SomaSegundoOctetoRede>255 || SomaTerceiroOctetoBroadcast>255){
+                    SomaTerceiroOctetoRede = 0
+                    SomaTerceiroOctetoBroadcast = 0
+                    
+                    SomaSegundoOctetoRede++
+                    SomaSegundoOctetoBroadcast++
+
+                    SomaSegundoOctetoBroadcast = Array.from(String(SomaSegundoOctetoBroadcast), num => Number(num))
+                    SomaSegundoOctetoRede = Array.from(String(SomaSegundoOctetoRede), num => Number(num))
+                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
+                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
+
+                    let ContadorVetor = 6
+                    let ContadorSoma = 0
+                    for(let j=0; j<6; j++){
+                        if(j==9){
+                            ContadorSoma = 0
+                        }
+
+                        if(j<9){
+                            VetorRede[ContadorVetor] = SomaSegundoOctetoRede[ContadorSoma]
+                            VetorBroadcast[ContadorVetor] = SomaSegundoOctetoRede[ContadorSoma]
+                        }
+                        else if(j>=9){
+                            VetorRede[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]
+                            VetorBroadcast[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]                            
+                        }
+                        ContadorVetor++
+                        ContadorSoma++
+                    }
+                }
+                else{
+                    SomaQuartoOctetoBroadcast = Array.from(String(SomaQuartoOctetoBroadcast), num => Number(num))
+                    SomaQuartoOctetoRede = Array.from(String(SomaQuartoOctetoRede), num => Number(num))
+
+                    let Contador = 9
+                    for(let j=0; j<3; j++){
+                        VetorRede[Contador] = SomaQuartoOctetoRede[j]
+                        VetorBroadcast[Contador] = SomaQuartoOctetoRede[j]
+                        Contador++
+                    }
+                }
             }
         }
     }
