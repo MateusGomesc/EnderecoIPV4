@@ -99,9 +99,18 @@ function QuantidadeSubredes(Mascara, Index){
     return QuantidadeSubredes
 }
 
-function DescobreIntervaloDeSubredes(NumRedes){
-    let espaco = (Math.pow(256, ((32 - index) / 8))) / NumRedes
+function DescobreIntervaloDeSubredes(NumRedes, Index){
+    let espaco = (Math.pow(256, ((32 - Index) / 8))) / NumRedes
     return espaco
+}
+
+function CompletaZeros(array){
+    if(array.length == 2){
+        array.unshift(0)
+    }
+    else if(array.length == 1){
+        array.unshift(0, 0)
+    }
 }
 
 function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, Mascara, Index){
@@ -183,6 +192,7 @@ function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, 
                 SomaQuartoOctetoRede += espaco
                 SomaQuartoOctetoBroadcast += espaco
 
+                //Quarto octeto passa de 255
                 if(SomaQuartoOctetoBroadcast>255 || SomaQuartoOctetoRede>255){
                     SomaTerceiroOctetoRede++
                     SomaTerceiroOctetoBroadcast++
@@ -190,39 +200,35 @@ function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, 
                     SomaQuartoOctetoRede = 255 - SomaQuartoOctetoRede
                     SomaQuartoOctetoBroadcast = 255 - SomaQuartoOctetoBroadcast
 
-                    //Transforma todas as somas em arrays e verifica o tamanho, se preciso completa com zero à00 esquerda
+                    //Transforma Somas em arrays
                     SomaQuartoOctetoBroadcast = Array.from(String(SomaQuartoOctetoBroadcast), num => Number(num))
-                    if(SomaQuartoOctetoBroadcast.length == 2){
-                        SomaQuartoOctetoBroadcast.unshift(0)
-                    }
+                    //Completa com zero a esquerda
+                    CompletaZeros(SomaQuartoOctetoBroadcast)
 
                     SomaQuartoOctetoRede = Array.from(String(SomaQuartoOctetoRede), num => Number(num))
-                    if(SomaQuartoOctetoRede.length == 2){
-                        SomaQuartoOctetoRede.unshift(0)
-                    }
+                    CompletaZeros(SomaQuartoOctetoRede)
 
                     SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
-                    if(SomaTerceiroOctetoRede.length == 2){
-                        SomaTerceiroOctetoRede.unshift(0)
-                    }
+                    CompletaZeros(SomaTerceiroOctetoRede)
 
                     SomaTerceiroOctetoBroadcast = Array.from(String(SomaTerceiroOctetoBroadcast), num => Number(num))
-                    if(SomaTerceiroOctetoBroadcast.length == 2){
-                        SomaTerceiroOctetoBroadcast.unshift(0)
-                    }
+                    CompletaZeros(SomaTerceiroOctetoBroadcast)
 
+                    //Troca valores dos Ip´s da rede e broadcast para nova verificação
                     let ContadorVetor = 6
                     let ContadorSoma = 0
                     for(let j=0; j<6; j++){
-                        if(j==9){
+                        //Reinicia Contador do array da soma para o quarto octeto
+                        if(j==3){
                             ContadorSoma = 0
                         }
 
-                        if(j<9){
+                        //Troca terceiro octeto
+                        if(j<3){
                             VetorRede[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]
                             VetorBroadcast[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]
                         }
-                        else if(j>=9){
+                        else if(j>=3){ //Troca quarto octeto
                             VetorRede[ContadorVetor] = SomaQuartoOctetoRede[ContadorSoma]
                             VetorBroadcast[ContadorVetor] = SomaQuartoOctetoRede[ContadorSoma]                            
                         }
@@ -230,30 +236,45 @@ function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, 
                         ContadorSoma++
                     }
                 }
-                else if(SomaSegundoOctetoRede>255 || SomaTerceiroOctetoBroadcast>255){
+                
+                //terceiro octeto passa de 255
+                if(SomaTerceiroOctetoRede>255 || SomaTerceiroOctetoBroadcast>255){
+                    //zera terceiro octeto
                     SomaTerceiroOctetoRede = 0
                     SomaTerceiroOctetoBroadcast = 0
                     
+                    //incrementa no segundo octeto
                     SomaSegundoOctetoRede++
                     SomaSegundoOctetoBroadcast++
 
+                    //transforma somas em arrays
                     SomaSegundoOctetoBroadcast = Array.from(String(SomaSegundoOctetoBroadcast), num => Number(num))
-                    SomaSegundoOctetoRede = Array.from(String(SomaSegundoOctetoRede), num => Number(num))
-                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
-                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
+                    //completa com zeros à esquerda
+                    CompletaZeros(SomaSegundoOctetoBroadcast)
 
-                    let ContadorVetor = 6
+                    SomaSegundoOctetoRede = Array.from(String(SomaSegundoOctetoRede), num => Number(num))
+                    CompletaZeros(SomaSegundoOctetoRede)
+
+                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
+                    CompletaZeros(SomaTerceiroOctetoRede)
+
+                    SomaTerceiroOctetoRede = Array.from(String(SomaTerceiroOctetoRede), num => Number(num))
+                    CompletaZeros(SomaTerceiroOctetoRede)
+
+                    //Troca valores de Ip´s de rede e broadcast para nova verificação
+                    let ContadorVetor = 3
                     let ContadorSoma = 0
                     for(let j=0; j<6; j++){
-                        if(j==9){
+                        if(j==3){ //zera contador para trocar no terceiro octeto
                             ContadorSoma = 0
                         }
 
-                        if(j<9){
+                        //Troca segundo octeto
+                        if(j<3){
                             VetorRede[ContadorVetor] = SomaSegundoOctetoRede[ContadorSoma]
                             VetorBroadcast[ContadorVetor] = SomaSegundoOctetoRede[ContadorSoma]
                         }
-                        else if(j>=9){
+                        else if(j>=3){ //troca terceiro octeto
                             VetorRede[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]
                             VetorBroadcast[ContadorVetor] = SomaTerceiroOctetoRede[ContadorSoma]                            
                         }
@@ -261,9 +282,14 @@ function DescobreIntervaloIp(VetorRede, VetorBroadcast, Ipv4, espaco, NumRedes, 
                         ContadorSoma++
                     }
                 }
-                else{
+                else{ //Troca somente quarto octeto
+                    //transfroma em array
                     SomaQuartoOctetoBroadcast = Array.from(String(SomaQuartoOctetoBroadcast), num => Number(num))
+                    //Completa com zeros
+                    CompletaZeros(SomaQuartoOctetoBroadcast)
+
                     SomaQuartoOctetoRede = Array.from(String(SomaQuartoOctetoRede), num => Number(num))
+                    CompletaZeros(SomaQuartoOctetoRede)
 
                     let Contador = 9
                     for(let j=0; j<3; j++){
@@ -320,10 +346,10 @@ let MascaraArray = Array.from(String(MascaraNum), num => Number(num))
 if(IpArray.length != 12){console.log("Ip Invalido, desconsidere resultado.")}
 
 //Recebe marco para verificar subrede
-let Trava = VerificaClasse(IpArray)
+let Index = VerificaClasse(IpArray)
 
 //Recebe mascara em binario
 RetornaMascaraBinario(MascaraArray)
 
 //Recebe endereço de rede e broadcast do endereço ip apresentado
-DescobreRedeBroadcast(IpArray, Rede, Broadcast, Trava, MascaraArray)
+DescobreRedeBroadcast(IpArray, Rede, Broadcast, Index, MascaraArray)
